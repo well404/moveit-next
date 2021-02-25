@@ -69,12 +69,21 @@
         &:not(:disabled):hover{
             background: var(--red);
             color: var(--white);
+
+            & img {
+                filter: brightness(3);
+            }
         } 
+
     }
 
     &:disabled{
         background: var(--white);
         color: var(--text);
+        border-bottom: 4px solid #4CD62B;
         cursor: not-allowed;
+        & img{
+            margin-left: 1rem;
+        }
     }
 }

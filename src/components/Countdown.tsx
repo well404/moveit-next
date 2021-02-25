@@ -1,45 +1,12 @@
 import React from 'react';
-import { ChallengesContext } from '../contexts/ChallengesContext';
 import styles from '../styles/components/Countdown.module.scss';
-
-
-let countdownTimeout: NodeJS.Timeout;
+import { CountdownContext } from '../contexts/CountdownContext';
 
 export function Countdown() {
-
-    const { startNewChallenge } = React.useContext(ChallengesContext);
-
-    const [time, setTime] = React.useState(0.10 * 60);
-    const [isActive, setIsActive] = React.useState(false);
-    const [hasFinished, setHasFinished] = React.useState(false);
-
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
+    const { minutes, seconds, hasFinished, isActive, resetCountdown, startCountdown } = React.useContext(CountdownContext);
 
     const [minuteLeft, minuteRight] = String(minutes).padStart(2, '0').split('');
     const [secondLeft, secondRight] = String(seconds).padStart(2, '0').split('');
-
-    function startCountdown() {
-        setIsActive(true);
-    };
-
-    function resetCountdown() {
-        clearTimeout(countdownTimeout);
-        setIsActive(false);
-        setTime(25 * 60);
-    };
-
-    React.useEffect(() => {
-        if (isActive && time > 0) {
-            countdownTimeout = setTimeout(() => {
-                setTime(prev => prev -= 1)
-            }, 1000);
-        } else if (isActive && time === 0) {
-            setHasFinished(true);
-            setIsActive(false);
-            startNewChallenge();
-        }
-    }, [isActive, time]);
 
     return (
         <div>
@@ -61,6 +28,7 @@ export function Countdown() {
                     className={styles.countdownButton}
                 >
                     Ciclo encerrado
+                    <img src="icons/check.svg" alt="Check icon" />
                 </button>
             ) : (
                     <React.Fragment>
@@ -71,6 +39,7 @@ export function Countdown() {
                                 onClick={resetCountdown}
                             >
                                 Abandonar ciclo
+                                <img src="icons/close.svg" alt="Close icon" />
                             </button>
                         ) : (
                                 <button
@@ -79,6 +48,7 @@ export function Countdown() {
                                     onClick={startCountdown}
                                 >
                                     Iniciar um ciclo
+                                    <img src="icons/play.svg" alt="Play icon" />
                                 </button>
                             )
                         }

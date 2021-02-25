@@ -7,7 +7,7 @@ interface Challenge {
     type: 'body' | 'eye';
     description: string;
     amount: number;
-}
+};
 
 interface ChallengesContextData {
     level: Number;
@@ -18,11 +18,12 @@ interface ChallengesContextData {
     levelUp: () => void;
     startNewChallenge: () => void;
     resetChallenge: () => void;
-}
+    completeChallenge: () => void;
+};
 
 interface ChallengesProviderProps {
     children: React.ReactNode;
-}
+};
 
 export const ChallengesContext = React.createContext({} as ChallengesContextData);
 
@@ -35,6 +36,11 @@ export default function ChallengesProvider({ children }: ChallengesProviderProps
 
     const experienceToNextLevel = Math.pow((level + 1) * 4, 2);
 
+
+    React.useEffect(() => {
+        Notification.requestPermission();
+    }, []);
+
     function levelUp() {
         setLevel(prev => prev += 1);
     };
@@ -43,10 +49,38 @@ export default function ChallengesProvider({ children }: ChallengesProviderProps
         const randomChallengeIndex = Math.floor(Math.random() * challenges.length);
         const challenge = challenges[randomChallengeIndex];
         setActiveChallenge(challenge);
-    }
+
+        new Audio('/notification.mp3').play();
+
+        if (Notification.permission === 'granted') {
+            new Notification('Novo desafio 🎉', {
+                body: `Valendo ${challenge.amount}xp!`
+            });
+        };
+    };
 
     function resetChallenge() {
         setActiveChallenge(null);
+    };
+
+
+    function completeChallenge() {
+        if (!activeChallenge) {
+            return;
+        };
+
+        const { amount } = activeChallenge;
+
+        let finalExperience = currentExperience + amount;
+
+        if (finalExperience >= experienceToNextLevel) {
+            finalExperience = finalExperience - experienceToNextLevel;
+            levelUp();
+        };
+
+        setCurrentExperience(finalExperience);
+        setActiveChallenge(null);
+        setChallengesCompleted(prev => prev += 1);
     };
 
     return (
@@ -59,11 +93,12 @@ export default function ChallengesProvider({ children }: ChallengesProviderProps
                 activeChallenge,
                 levelUp,
                 startNewChallenge,
-                resetChallenge
+                resetChallenge,
+                completeChallenge
 
             }
         }>
             {children}
         </ChallengesContext.Provider>
-    )
-}
+    );
+};
